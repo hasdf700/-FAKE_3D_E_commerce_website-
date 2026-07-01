@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- 主機： 127.0.0.1
--- 產生時間： 2026-05-04 15:54:19
+-- 產生時間： 2026-07-01 09:08:09
 -- 伺服器版本： 10.4.32-MariaDB
 -- PHP 版本： 8.2.12
 
@@ -38,6 +38,14 @@ CREATE TABLE `addbook` (
   `create_date` timestamp NOT NULL DEFAULT current_timestamp() COMMENT '建立日期'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
+--
+-- 傾印資料表的資料 `addbook`
+--
+
+INSERT INTO `addbook` (`addressid`, `setdefault`, `emailid`, `cname`, `mobile`, `myZip`, `address`, `create_date`) VALUES
+(1, 1, 2, '11111111', '0911111111', '203', '11111111', '2026-05-25 14:29:08'),
+(2, 1, 3, '1111', '0912345678', '513', '11111111', '2026-05-25 14:35:56');
+
 -- --------------------------------------------------------
 
 --
@@ -55,6 +63,15 @@ CREATE TABLE `carousel` (
   `create_date` timestamp NOT NULL DEFAULT current_timestamp() COMMENT '建立日期'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
+--
+-- 傾印資料表的資料 `carousel`
+--
+
+INSERT INTO `carousel` (`caro_id`, `caro_title`, `caro_content`, `caro_online`, `caro_sort`, `caro_pic`, `p_id`, `create_date`) VALUES
+(1, NULL, NULL, 1, 1, 'images/carousel/pic1.webp', 4, '2026-05-06 07:24:11'),
+(2, NULL, NULL, 1, 2, 'images/carousel/pic2.webp', 3, '2026-05-06 07:24:11'),
+(3, NULL, NULL, 1, 3, 'images/carousel/pic3.webp', 316, '2026-05-06 07:24:11');
+
 -- --------------------------------------------------------
 
 --
@@ -71,6 +88,15 @@ CREATE TABLE `cart` (
   `ip` varchar(200) NOT NULL COMMENT '訂購者的IP',
   `create_date` timestamp NOT NULL DEFAULT current_timestamp() COMMENT '加入購物車時間'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+--
+-- 傾印資料表的資料 `cart`
+--
+
+INSERT INTO `cart` (`cartid`, `emailid`, `p_id`, `qty`, `orderid`, `status`, `ip`, `create_date`) VALUES
+(1, NULL, 2, 10, NULL, 1, '::1', '2026-05-25 09:46:35'),
+(2, NULL, 1, 1, NULL, 1, '::1', '2026-05-25 09:46:46'),
+(3, NULL, 14, 1, NULL, 1, '::1', '2026-05-25 09:47:00');
 
 -- --------------------------------------------------------
 
@@ -129,20 +155,28 @@ CREATE TABLE `hot` (
 -- --------------------------------------------------------
 
 --
--- 資料表結構 `member`
+-- 資料表結構 `members`
 --
 
-CREATE TABLE `member` (
-  `emailid` int(11) NOT NULL COMMENT 'email流水號',
-  `email` varchar(100) NOT NULL COMMENT 'email帳號',
-  `pw1` varchar(50) NOT NULL COMMENT '密碼',
-  `active` tinyint(1) NOT NULL DEFAULT 1 COMMENT '是否啟動',
-  `cname` varchar(30) NOT NULL COMMENT '中文姓名',
-  `tssn` varchar(20) NOT NULL COMMENT '身份證字號',
-  `birthday` date NOT NULL COMMENT '生日',
-  `imgname` text DEFAULT NULL COMMENT '相片檔名',
-  `create_date` timestamp NOT NULL DEFAULT current_timestamp() COMMENT '建立日期'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+CREATE TABLE `members` (
+  `m_id` int(11) NOT NULL COMMENT '會員流水號',
+  `m_email` varchar(150) NOT NULL COMMENT '電子信箱',
+  `m_password` varchar(255) NOT NULL COMMENT '雜湊密碼',
+  `m_name` varchar(50) NOT NULL COMMENT '會員姓名',
+  `m_phone` varchar(20) DEFAULT NULL COMMENT '電話',
+  `m_img` varchar(100) NOT NULL COMMENT '會員頭像',
+  `m_status` tinyint(4) DEFAULT 1 COMMENT '狀態(1啟用 0停權)',
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp() COMMENT '註冊時間',
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp() COMMENT '更新時間'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- 傾印資料表的資料 `members`
+--
+
+INSERT INTO `members` (`m_id`, `m_email`, `m_password`, `m_name`, `m_phone`, `m_img`, `m_status`, `created_at`, `updated_at`) VALUES
+(1, 'hasdf700@gmail.com', '$2y$10$7avHwb3U5JNb8YuBstFmquolJ3.JG.Bj7CQ8BQf9.kSGUUhR18BJe', '大亨堡', '0956850611', '', 1, '2026-05-23 02:49:37', '2026-05-24 01:56:41'),
+(3, '1111@gmail.com', '$2y$10$w7AZ1ZuwcsqmTsLK0WqBhOI99wQr8PRJP.tFsRTFrBwzSU0/vlO7.', '1111', '0912345678', 'avatar.svg', 1, '2026-05-25 14:35:56', '2026-05-25 14:35:56');
 
 -- --------------------------------------------------------
 
@@ -199,12 +233,47 @@ CREATE TABLE `product` (
   `p_id` int(10) NOT NULL COMMENT '產品編號',
   `classid` int(3) NOT NULL COMMENT '產品類別',
   `p_name` varchar(200) NOT NULL COMMENT '產品名稱',
-  `p_intro` varchar(200) DEFAULT NULL COMMENT '產品簡介',
+  `p_img` varchar(200) NOT NULL COMMENT '產品圖片',
+  `p_info` varchar(200) DEFAULT NULL COMMENT '產品簡介',
   `p_price` int(11) DEFAULT NULL COMMENT '產品單價',
   `p_open` tinyint(1) NOT NULL DEFAULT 1 COMMENT '上架',
-  `p_content` text DEFAULT NULL COMMENT '產品詳細規格',
+  `p_sort` int(11) DEFAULT NULL COMMENT '產品排序',
   `p_date` timestamp NULL DEFAULT current_timestamp() COMMENT '產品輸入日期'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+--
+-- 傾印資料表的資料 `product`
+--
+
+INSERT INTO `product` (`p_id`, `classid`, `p_name`, `p_img`, `p_info`, `p_price`, `p_open`, `p_sort`, `p_date`) VALUES
+(1, 4, '壓克力立牌(靈夢)', 'store_ChillNekoUProduct/store_ChillNeko01.webp', '寬X高(10x15)cm', 420, 1, 1, '2026-05-06 02:04:09'),
+(2, 4, '壓克力立牌(幽幽子)', 'store_ChillNekoUProduct/store_ChillNeko02.webp', '寬X高(10x15)cm', 420, 1, 2, '2026-05-06 02:04:09'),
+(3, 4, '壓克力鑰匙圈(A靈夢)', 'store_ChillNekoUProduct/store_ChillNeko03.webp', '寬X高(5x5)cm', 150, 1, 3, '2026-05-06 02:04:09'),
+(4, 4, '壓克力鑰匙圈(B魔理沙)', 'store_ChillNekoUProduct/store_ChillNeko03.webp', '寬X高(5x5)cm', 150, 1, 4, '2026-05-06 02:04:09'),
+(5, 4, '壓克力鑰匙圈(C咲夜)', 'store_ChillNekoUProduct/store_ChillNeko03.webp', '寬X高(5x5)cm', 150, 1, 5, '2026-05-06 02:04:09'),
+(6, 4, '壓克力鑰匙圈(D妖夢)', 'store_ChillNekoUProduct/store_ChillNeko03.webp', '寬X高(5x5)cm', 150, 1, 6, '2026-05-06 02:04:09'),
+(7, 4, '壓克力鑰匙圈(E幽幽子)', 'store_ChillNekoUProduct/store_ChillNeko03.webp', '寬X高(5x5)cm', 150, 1, 7, '2026-05-06 02:04:09'),
+(8, 4, '壓克力鑰匙圈(F八雲紫)', 'store_ChillNekoUProduct/store_ChillNeko03.webp', '寬X高(5x5)cm', 150, 1, 8, '2026-05-06 02:04:09'),
+(9, 4, '壓克力鑰匙圈(G蕾米)', 'store_ChillNekoUProduct/store_ChillNeko03.webp', '寬X高(5x5)cm', 150, 1, 9, '2026-05-06 02:04:09'),
+(10, 4, '壓克力鑰匙圈(H芙蘭)', 'store_ChillNekoUProduct/store_ChillNeko03.webp', '寬X高(5x5)cm', 150, 1, 10, '2026-05-06 02:04:09'),
+(11, 4, '壓克力鑰匙圈(I帕秋莉)', 'store_ChillNekoUProduct/store_ChillNeko03.webp', '寬X高(5x5)cm', 150, 1, 11, '2026-05-06 02:04:09'),
+(12, 4, '壓克力鑰匙圈(J愛麗絲)', 'store_ChillNekoUProduct/store_ChillNeko03.webp', '寬X高(5x5)cm', 150, 1, 12, '2026-05-06 02:04:09'),
+(13, 4, '壓克力鑰匙圈(K琪露諾)', 'store_ChillNekoUProduct/store_ChillNeko03.webp', '寬X高(5x5)cm', 150, 1, 13, '2026-05-06 02:04:09'),
+(14, 4, '壓克力鑰匙圈(L鈴仙)', 'store_ChillNekoUProduct/store_ChillNeko03.webp', '寬X高(5x5)cm', 150, 1, 14, '2026-05-06 02:04:09'),
+(15, 4, '東方project同人本(靈夢)', 'store_ChillNekoUProduct/store_ChillNeko04.webp', '16p全彩', 100, 1, 15, '2026-05-06 02:33:02'),
+(16, 4, '東方project同人本(魔理沙)', 'store_ChillNekoUProduct/store_ChillNeko05.webp', '16p全彩', 220, 1, 16, '2026-05-06 02:33:02'),
+(17, 4, '油庫里貼紙', 'store_ChillNekoUProduct/store_ChillNeko06.webp', 'A5全彩', 50, 1, 17, '2026-05-06 02:33:02'),
+(18, 4, '東方明信片四款一組', 'store_ChillNekoUProduct/store_ChillNeko07.webp', '全彩', 50, 1, 18, '2026-05-06 02:33:02'),
+(19, 3, '手工蛋餃', 'store_ChaHuHotpotProduct/hotpot_01.webp', '嚴選鮮雞蛋製作，皮薄餡豐。', 85, 1, 1, '2026-05-06 03:00:00'),
+(20, 3, '魚包蛋', 'store_ChaHuHotpotProduct/hotpot_02.webp', 'Q彈魚漿包裹滿滿飛魚卵。', 90, 1, 2, '2026-05-06 03:00:00'),
+(21, 3, '爆漿起司球', 'store_ChaHuHotpotProduct/hotpot_03.webp', '濃郁起司內餡，小心燙口。', 95, 1, 3, '2026-05-06 03:00:00'),
+(22, 3, '蟹味棒', 'store_ChaHuHotpotProduct/hotpot_04.webp', '絲絲入扣的經典火鍋良伴。', 60, 1, 4, '2026-05-06 03:00:00'),
+(23, 3, '凍豆腐', 'store_ChaHuHotpotProduct/hotpot_05.webp', '吸飽湯汁精華的必點單品。', 50, 1, 5, '2026-05-06 03:00:00'),
+(24, 3, '貢丸', 'store_ChaHuHotpotProduct/hotpot_06.webp', '在地豬肉製作，口感紮實。', 70, 1, 6, '2026-05-06 03:00:00'),
+(25, 3, '甜不辣', 'store_ChaHuHotpotProduct/hotpot_07.webp', '古法魚漿調製，鮮甜美味。', 45, 1, 7, '2026-05-06 03:00:00'),
+(26, 3, '東方燕餃', 'store_ChaHuHotpotProduct/hotpot_08.webp', '經典手工擀皮，口口滿足。', 80, 1, 8, '2026-05-06 03:00:00'),
+(27, 3, '米血糕', 'store_ChaHuHotpotProduct/hotpot_09.webp', '口感軟糯，火鍋必備。', 40, 1, 9, '2026-05-06 03:00:00'),
+(28, 3, '龍蝦風味丸', 'store_ChaHuHotpotProduct/hotpot_10.webp', '獨特龍蝦風味，鮮味十足。', 100, 1, 10, '2026-05-06 03:00:00');
 
 -- --------------------------------------------------------
 
@@ -232,6 +301,8 @@ CREATE TABLE `store` (
   `sname` varchar(30) NOT NULL COMMENT '商店名稱',
   `img_file` varchar(100) NOT NULL COMMENT '商店圖片',
   `sdesc` varchar(100) NOT NULL COMMENT '商店描述',
+  `sopening_Hours` int(11) NOT NULL COMMENT '開店時間',
+  `scolseing_Hours` int(11) NOT NULL COMMENT '閉店時間',
   `sort` int(3) NOT NULL COMMENT '列表排序',
   `sopen` int(3) NOT NULL COMMENT '是否開店',
   `create_date` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp() COMMENT '建立時間與更新時間'
@@ -241,19 +312,35 @@ CREATE TABLE `store` (
 -- 傾印資料表的資料 `store`
 --
 
-INSERT INTO `store` (`classid`, `level`, `sname`, `img_file`, `sdesc`, `sort`, `sopen`, `create_date`) VALUES
-(1, 1, '星辰咖啡', 'store_Coffee.webp', '提供頂級手沖咖啡與宇宙級的寧靜空間，適合放鬆與思考。', 1, 1, '2026-05-04 12:09:02'),
-(2, 1, '極光電玩', 'store_Game.webp', '最齊全的次世代主機與復古機台，沉浸在霓虹光影的遊戲世界。', 2, 1, '2026-05-04 12:09:06'),
-(3, 1, '霓虹書坊', 'store_Book.webp', '收錄了無數實體書與電子卷軸，尋找失傳的數位智慧。', 3, 1, '2026-05-04 12:09:09'),
-(4, 1, '月影酒吧', 'store_Beer.webp', '夜晚最Chill的去處。', 4, 1, '2026-05-04 12:09:12'),
-(5, 1, '毛毛工坊', 'store_ChillNeko.webp', '東方周邊商品販售。', 5, 1, '2026-05-04 12:09:16'),
-(6, 1, '加賀火鍋', 'store_Hotpot.webp', '暖心暖胃的日式火鍋。', 6, 1, '2026-05-04 12:09:21'),
-(7, 1, '時光花店', 'store_Flower.webp', '永不凋謝的電子花卉。', 7, 1, '2026-05-04 12:09:25'),
-(125, 1, '招租中', 'for_rent.jpg', '招租中', 8, 1, '2026-05-04 12:52:39'),
-(126, 1, '招租中', 'for_rent.jpg', '招租中', 9, 1, '2026-05-04 12:53:14'),
-(127, 1, '招租中', 'for_rent.jpg', '招租中', 10, 1, '2026-05-04 12:53:14'),
-(128, 1, '招租中', 'for_rent.jpg', '招租中', 11, 1, '2026-05-04 12:53:14'),
-(129, 1, '招租中', 'for_rent.jpg', '招租中', 12, 1, '2026-05-04 12:53:15');
+INSERT INTO `store` (`classid`, `level`, `sname`, `img_file`, `sdesc`, `sopening_Hours`, `scolseing_Hours`, `sort`, `sopen`, `create_date`) VALUES
+(1, 1, '星辰咖啡', 'store/store_Coffee.webp', '提供頂級手沖咖啡與宇宙級的寧靜空間，適合放鬆與思考。', 9, 21, 1, 1, '2026-05-06 03:25:33'),
+(2, 1, '極光電玩', 'store/store_Game.webp', '最齊全的次世代主機與復古機台，沉浸在霓虹光影的遊戲世界。', 2, 20, 2, 1, '2026-05-06 03:25:33'),
+(3, 1, '加賀火鍋', 'store/store_Hotpot.webp', '暖心暖胃的日式火鍋。', 13, 10, 3, 1, '2026-05-06 03:25:33'),
+(4, 1, '毛毛工坊', 'store/store_ChillNeko.webp', '東方周邊商品販售。', 13, 21, 4, 1, '2026-05-06 03:25:33'),
+(5, 1, '月影酒吧', 'store/store_Beer.webp', '夜晚最Chill的去處。', 13, 13, 5, 1, '2026-05-06 03:25:33'),
+(6, 1, '霓虹書坊', 'store/store_Book.webp', '收錄了無數實體書與電子卷軸，尋找失傳的數位智慧。', 10, 20, 6, 1, '2026-05-06 03:25:33'),
+(7, 1, '時光花店', 'store/store_Flower.webp', '永不凋謝的電子花卉。', 10, 17, 7, 1, '2026-05-06 03:25:33'),
+(301, 1, '喵喵寵物坊', 'store/Under_Renovation.jpg', '提供各式萌寵零食與精緻美容服務。', 10, 20, 8, 1, '2026-05-06 03:35:48'),
+(302, 1, '極光藥妝', 'store/Under_Renovation.jpg', '收集全球熱銷美妝與保健食品。', 10, 22, 9, 1, '2026-05-06 03:35:48'),
+(303, 1, '幻影服飾', 'store/Under_Renovation.jpg', '獨特設計風格，展現您的個人時尚態度。', 11, 21, 10, 1, '2026-05-06 03:35:48'),
+(304, 1, '晨曦麵包', 'store/Under_Renovation.jpg', '每日新鮮現烤，堅持使用天然食材。', 7, 19, 11, 1, '2026-05-06 03:35:48'),
+(305, 1, '星際健身', 'store/Under_Renovation.jpg', '最先進健身設備與專業教練培訓課程。', 6, 23, 12, 1, '2026-05-06 03:35:48'),
+(306, 1, '數位診所', 'store/Under_Renovation.jpg', '專業醫療諮詢，守護您的身心健康。', 9, 21, 13, 1, '2026-05-06 03:35:48'),
+(307, 1, '閃電修車', 'store/Under_Renovation.jpg', '專業引擎調校與快速維修保養服務。', 9, 18, 14, 1, '2026-05-06 03:35:48'),
+(308, 1, '雲端超市', 'store/Under_Renovation.jpg', '生鮮雜貨一應俱全，便利居家生活。', 8, 23, 15, 1, '2026-05-06 03:35:48'),
+(309, 1, '微光影城', 'store/Under_Renovation.jpg', '震撼感官體驗，享受大螢幕電影魅力。', 10, 1, 16, 1, '2026-05-06 03:35:48'),
+(310, 1, '深藍水族', 'store/Under_Renovation.jpg', '觀賞魚與造景設計，打造室內生態美學。', 11, 20, 17, 1, '2026-05-06 03:35:48'),
+(311, 1, '巧手裁縫', 'store/Under_Renovation.jpg', '精緻修改衣服尺寸，賦予衣物新生命。', 10, 19, 18, 1, '2026-05-06 03:35:48'),
+(312, 1, '巨匠文具', 'store/Under_Renovation.jpg', '精選文具用品，激發您的工作靈感。', 9, 21, 19, 1, '2026-05-06 03:35:48'),
+(313, 1, '熱血籃球', 'store/Under_Renovation.jpg', '專業場地租借，揮灑汗水的運動空間。', 8, 22, 20, 1, '2026-05-06 03:35:48'),
+(314, 1, '秘境茶屋', 'store/Under_Renovation.jpg', '傳統茶道與現代下午茶的完美融合。', 11, 18, 21, 1, '2026-05-06 03:35:48'),
+(315, 1, '酷玩模型', 'store/Under_Renovation.jpg', '限量模型與公仔收藏，動漫愛好者天堂。', 12, 21, 22, 1, '2026-05-06 03:35:48'),
+(316, 1, '快速洗鞋', 'store/Under_Renovation.jpg', '專業球鞋清洗，讓愛鞋煥然一新。', 11, 20, 23, 1, '2026-05-06 03:35:48'),
+(317, 1, '音浪唱片', 'store/Under_Renovation.jpg', '典藏黑膠與最新專輯，品味好音樂。', 13, 22, 24, 1, '2026-05-06 03:35:48'),
+(318, 1, '森林家俱', 'store/Under_Renovation.jpg', '原木手作傢俱，打造溫馨居家空間。', 10, 19, 25, 1, '2026-05-06 03:35:48'),
+(319, 1, '智能 3C', 'store/Under_Renovation.jpg', '最新科技產品與專業維修諮詢。', 11, 21, 26, 1, '2026-05-06 03:35:48'),
+(320, 1, '翡翠銀樓', 'store/Under_Renovation.jpg', '精緻珠寶首飾，見證您的珍貴時刻。', 10, 19, 27, 1, '2026-05-06 03:35:48'),
+(321, 1, '招租中', 'store/for_rent.jpg', '原木手作傢俱，打造溫馨居家空間。', 10, 19, 28, 1, '2026-05-06 03:31:03');
 
 -- --------------------------------------------------------
 
@@ -698,11 +785,11 @@ ALTER TABLE `hot`
   ADD PRIMARY KEY (`h_id`);
 
 --
--- 資料表索引 `member`
+-- 資料表索引 `members`
 --
-ALTER TABLE `member`
-  ADD PRIMARY KEY (`emailid`),
-  ADD UNIQUE KEY `email` (`email`);
+ALTER TABLE `members`
+  ADD PRIMARY KEY (`m_id`),
+  ADD UNIQUE KEY `idx_email` (`m_email`);
 
 --
 -- 資料表索引 `multiselect`
@@ -748,19 +835,19 @@ ALTER TABLE `uorder`
 -- 使用資料表自動遞增(AUTO_INCREMENT) `addbook`
 --
 ALTER TABLE `addbook`
-  MODIFY `addressid` int(10) NOT NULL AUTO_INCREMENT COMMENT '地址ID';
+  MODIFY `addressid` int(10) NOT NULL AUTO_INCREMENT COMMENT '地址ID', AUTO_INCREMENT=3;
 
 --
 -- 使用資料表自動遞增(AUTO_INCREMENT) `carousel`
 --
 ALTER TABLE `carousel`
-  MODIFY `caro_id` int(3) NOT NULL AUTO_INCREMENT COMMENT '輪播編號';
+  MODIFY `caro_id` int(3) NOT NULL AUTO_INCREMENT COMMENT '輪播編號', AUTO_INCREMENT=4;
 
 --
 -- 使用資料表自動遞增(AUTO_INCREMENT) `cart`
 --
 ALTER TABLE `cart`
-  MODIFY `cartid` int(10) NOT NULL AUTO_INCREMENT COMMENT '購物車編號';
+  MODIFY `cartid` int(10) NOT NULL AUTO_INCREMENT COMMENT '購物車編號', AUTO_INCREMENT=4;
 
 --
 -- 使用資料表自動遞增(AUTO_INCREMENT) `city`
@@ -775,10 +862,10 @@ ALTER TABLE `hot`
   MODIFY `h_id` int(3) NOT NULL AUTO_INCREMENT COMMENT '熱銷商品流水號';
 
 --
--- 使用資料表自動遞增(AUTO_INCREMENT) `member`
+-- 使用資料表自動遞增(AUTO_INCREMENT) `members`
 --
-ALTER TABLE `member`
-  MODIFY `emailid` int(11) NOT NULL AUTO_INCREMENT COMMENT 'email流水號';
+ALTER TABLE `members`
+  MODIFY `m_id` int(11) NOT NULL AUTO_INCREMENT COMMENT '會員流水號', AUTO_INCREMENT=4;
 
 --
 -- 使用資料表自動遞增(AUTO_INCREMENT) `multiselect`
@@ -790,7 +877,7 @@ ALTER TABLE `multiselect`
 -- 使用資料表自動遞增(AUTO_INCREMENT) `product`
 --
 ALTER TABLE `product`
-  MODIFY `p_id` int(10) NOT NULL AUTO_INCREMENT COMMENT '產品編號';
+  MODIFY `p_id` int(10) NOT NULL AUTO_INCREMENT COMMENT '產品編號', AUTO_INCREMENT=29;
 
 --
 -- 使用資料表自動遞增(AUTO_INCREMENT) `product_img`
@@ -802,7 +889,7 @@ ALTER TABLE `product_img`
 -- 使用資料表自動遞增(AUTO_INCREMENT) `store`
 --
 ALTER TABLE `store`
-  MODIFY `classid` int(3) NOT NULL AUTO_INCREMENT COMMENT '產品類別', AUTO_INCREMENT=130;
+  MODIFY `classid` int(3) NOT NULL AUTO_INCREMENT COMMENT '產品類別', AUTO_INCREMENT=324;
 
 --
 -- 使用資料表自動遞增(AUTO_INCREMENT) `town`
