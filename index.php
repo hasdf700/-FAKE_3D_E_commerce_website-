@@ -38,15 +38,15 @@ require_once('Connections/conn_db.php');
     <!-- 主體 -->
     <div class="viewport">
         <div class="world" id="world">
-            <?php //require_once("Connections/ground.php"); 
+            <?php require_once("Connections/ground.php"); 
             ?>
-            <?php //require_once("Connections/top-ceiling.php"); 
+            <?php require_once("Connections/top-ceiling.php"); 
             ?>
-            <?php //require_once("Connections/left-side.php"); 
+            <?php require_once("Connections/left-side.php"); 
             ?>
-            <?php //require_once("Connections/store.php"); 
+            <?php require_once("Connections/store.php"); 
             ?>
-            <?php //require_once("Connections/end-side.php"); 
+            <?php require_once("Connections/end-side.php"); 
             ?>
         </div>
     </div>

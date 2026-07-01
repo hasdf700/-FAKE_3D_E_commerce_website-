@@ -19,6 +19,7 @@
 }
 
 body {
+    
     margin: 0;
     background-color: #000000 !important;
     touch-action: none;
@@ -28,9 +29,9 @@ body {
 
     position: fixed;
 
-    top: 20px;
+    top: 0px;
 
-    right: 20px;
+    right: 0px;
 
     background: rgba(0, 0, 0, 0.9);
 
@@ -42,15 +43,16 @@ body {
 
     font-size: 14px;
 
-    z-index: 2000;
+    z-index: 3000;
 
 }
 
 .viewport {
+    transform: scale(0.5);
     width: 100vw;
     height: 100vh;
     perspective: var(--perspective-val);
-    perspective-origin: 5% 40%;
+    perspective-origin: 50% 40%;
     display: flex;
     align-items: center;
     justify-content: center;
