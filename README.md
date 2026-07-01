@@ -16,5 +16,5 @@
 1. 下載並安裝 [XAMPP](https://www.apachefriends.org/)。
 2. 將此專案資料夾移至 `C:/xampp/htdocs/` 下。
 3. 開啟 XAMPP Control Panel，啟動 **Apache** 與 **MySQL**。
-4. 匯入資料庫檔案（如有 `nexus_mall.sql`）。
+4. 匯入資料庫檔案（ `expstore.sql`）。
 5. 在瀏覽器輸入 `http://localhost/NEXUSMall/` 即可瀏覽網站。
