@@ -1,0 +1,106 @@
+/* 時鐘樣式 */
+@font-face {
+    font-family: 'Digital7';
+    src: url('font/digital-7.ttf');
+}
+
+:root {
+    --neon-purple: #bd00ff;
+    --neon-purple-glow: rgba(189, 0, 255, 0.8);
+}
+
+.clockArea {
+    position: relative;
+    min-height: 800px;
+    width: 99%;
+    margin: 0 auto;
+    border-radius: 100px;
+    /* 外部圓角 */
+    background: #111;
+    /* 內部背景 */
+    overflow: hidden;
+    z-index: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* 這裡透過 background-origin 製作邊框 */
+    border: 10px solid transparent;
+    background-clip: padding-box, border-box;
+    background-origin: padding-box, border-box;
+    /* 設定背景色為黑色，這樣 border 區域就是透明的，我們填入光環 */
+    background-image: linear-gradient(#111, #111), linear-gradient(to right, #444, #444);
+}
+
+/* 核心：用 before 製作一個絕對定位的旋轉環 */
+.clockArea::before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    /* 這裡才是真正的跑馬燈 */
+    background: conic-gradient(from 0deg, transparent 0deg, var(--neon-purple) 20deg, transparent 40deg);
+    animation: rotate 6s linear infinite;
+    transform-origin: center;
+    z-index: 0;
+    will-change: transform;
+    backface-visibility: hidden;
+    /* 增加一個極小的模糊濾鏡，這可以防止因為邊緣銳利導致的像素閃爍 */
+    filter: blur(0.5px);
+
+}
+
+/* 用 after 把中間挖空，把中間的背景填回去，只留下邊框處的燈條 */
+.clockArea::after {
+    content: '';
+    position: absolute;
+    inset: 30px;
+    /* 控制邊框厚度 */
+    border-radius: 90px;
+    background: #111;
+    /* 中間填回黑色，蓋住旋轉盤中心 */
+    z-index: 1;
+}
+
+@keyframes rotate {
+    from {
+        transform: rotate(0deg) scale(4);
+    }
+
+    to {
+        transform: rotate(360deg) scale(4);
+    }
+}
+
+.digtal-clock {
+    font-family: 'Digital7', sans-serif;
+    font-weight: 900;
+    font-size: 30rem;
+    /* 使用固定大小或相對單位 */
+    color: #00fff2;
+    text-shadow: 0 0 20px #00fff2, 0 0 40px #00fff2;
+    transform: skewX(-5deg);
+
+    /* 這裡使用 text-align 來置中 inline-block 元素 */
+    text-align: center;
+    line-height: 1;
+    width: 100%;
+    /* 確保時鐘文字層級高於遮罩 */
+    position: relative;
+    z-index: 2;
+}
+
+/* 關鍵：強制每個數字格子的寬度固定 */
+.num-slot {
+    display: inline-block;
+    width: 0.6em;
+    /* 根據你的字體調整，大約 0.6em ~ 0.8em */
+    text-align: center;
+    /* 讓數字在格子裡置中 */
+}
+
+/* 冒號不需要那麼寬，可以窄一點 */
+.divider {
+    display: inline-block;
+    width: 0.1em;
+    text-align: center;
+}

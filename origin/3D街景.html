@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D CSS 街道演示</title>
+    <!-- 引入 Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --street-width: 800px;
+            --wall-height: 450px;
+            --shop-width: 350px;
+            --bg-dark: #121212;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: var(--bg-dark);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        /* 3D 視角容器 */
+        .viewport {
+            width: 100vw;
+            height: 100vh;
+            perspective: 800px; /* 鏡頭透視強度 */
+            perspective-origin: 50% 40%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* 街道主體 (世界坐標系) */
+        .world {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transform-style: preserve-3d;
+            transition: transform 0.1s ease-out;
+            transform: translateZ(-1000px);
+        }
+
+        /* 地面 */
+        .ground {
+            position: absolute;
+            width: 8000px;
+            height: 10000px;
+            background: 
+                linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)),
+                repeating-linear-gradient(90deg, #222 0, #222 2px, transparent 2px, transparent 40px),
+                repeating-linear-gradient(0deg, #222 0, #222 2px, transparent 2px, transparent 40px),
+                #333;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -10%) rotateX(90deg);
+            z-index: -1;
+        }
+
+        /* 街道兩側的牆面容器 */
+        .street-wall {
+            position: absolute;
+            top: 50%;
+            height: var(--wall-height);
+            margin-top: calc(var(--wall-height) / -2);
+            display: flex;
+            transform-style: preserve-3d;
+        }
+
+        /* 左側商店群 */
+        .left-side {
+            right: calc(50% + (var(--street-width) / 2));
+            transform-origin: right center;
+            transform: rotateY(90deg);
+        }
+
+        /* 右側商店群 */
+        .right-side {
+            left: calc(50% + (var(--street-width) / 2));
+            transform-origin: left center;
+            transform: rotateY(-90deg);
+        }
+
+        /* 個別商店單元 */
+        .shop {
+            width: var(--shop-width);
+            height: 100%;
+            background: #2a2a2a;
+            border: 4px solid #111;
+            margin: 0 5px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: inset 0 0 50px rgba(0,0,0,0.8);
+        }
+
+        /* 商店招牌 (上方) */
+        .signboard {
+            height: 120px;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            border-bottom: 8px solid #111;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 900;
+        }
+
+        /* 商店門口 (下方) */
+        .entrance {
+            flex-grow: 1;
+            position: relative;
+            background: #1a1a1a;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            padding-bottom: 0;
+            overflow: hidden;
+        }
+
+        /* 門的視覺效果 */
+        .door {
+            width: 60%;
+            height: 80%;
+            background: linear-gradient(to top, #333, #000);
+            border: 2px solid #444;
+            border-bottom: none;
+            border-radius: 5px 5px 0 0;
+            position: relative;
+        }
+
+        .door::after {
+            content: '';
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            width: 10px;
+            height: 10px;
+            background: gold;
+            border-radius: 50%;
+        }
+
+        /* 頂部裝飾燈帶 */
+        .light-strip {
+            position: absolute;
+            top: 0;
+            width: 100%;
+            height: 5px;
+            box-shadow: 0 0 15px 2px currentColor;
+        }
+
+        /* 提示 UI */
+        .controls-hint {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-size: 0.9rem;
+            pointer-events: none;
+            z-index: 100;
+            border: 1px solid #444;
+        }
+    </style>
+</head>
+<body>
+
+<div class="viewport">
+    <div class="world" id="world">
+        <!-- 街道地面 -->
+        <div class="ground"></div>
+
+        <!-- 左側街道 -->
+        <div class="street-wall left-side" id="leftWall">
+            <!-- 商店會由 JS 生成或手動列出 -->
+        </div>
+
+        <!-- 右側街道 -->
+        <div class="street-wall right-side" id="rightWall">
+            <!-- 商店會由 JS 生成或手動列出 -->
+        </div>
+    </div>
+</div>
+
+<div class="controls-hint">
+    使用滑鼠滾輪或觸控滑動來「沿街前行」
+</div>
+
+<script>
+    const leftWall = document.getElementById('leftWall');
+    const rightWall = document.getElementById('rightWall');
+    const world = document.getElementById('world');
+
+    const shopNamesLeft = ["漢堡國王", "街角書店", "時尚沙龍", "古董相機", "黑膠唱片", "精釀啤酒", "深夜食堂", "數位藝廊", "街角書店", "時尚沙龍", "古董相機", "黑膠唱片", "精釀啤酒", "深夜食堂", "數位藝廊"];
+    const shopNamesRight = ["義式咖啡", "城市藥局", "潮流鞋店", "花草空間", "甜點盒子", "五金百貨", "寵物沙龍", "未來科技", "城市藥局", "潮流鞋店", "花草空間", "甜點盒子", "五金百貨", "寵物沙龍", "未來科技"];
+    const colors = ["bg-primary", "bg-danger", "bg-success", "bg-warning", "bg-info", "bg-secondary", "bg-dark"];
+
+    // 動態生成商店
+    function createShops(container, names) {
+        names.forEach((name, index) => {
+            const colorClass = colors[index % colors.length];
+            const textColor = (colorClass === 'bg-warning' || colorClass === 'bg-info') ? 'text-dark' : 'text-white';
+            
+            const shop = document.createElement('div');
+            shop.className = 'shop';
+            shop.innerHTML = `
+                <div class="signboard ${colorClass} ${textColor} shadow-sm">
+                    <span class="light-strip ${textColor}"></span>
+                    ${name}
+                </div>
+                <div class="entrance">
+                    <div class="door"></div>
+                </div>
+            `;
+            container.appendChild(shop);
+        });
+    }
+
+    createShops(leftWall, shopNamesLeft);
+    createShops(rightWall, shopNamesRight);
+
+    // 鏡頭控制變數
+    let currentZ = 0;
+    const moveSpeed = 1.5;
+
+    // 滑鼠滾輪互動
+    window.addEventListener('wheel', (e) => {
+        // e.deltaY > 0 為向下滾動，通常代表前進
+        currentZ += e.deltaY * moveSpeed;
+        
+        // 限制不要退後到街道外面太遠
+        if (currentZ < -6000) currentZ = -6000;
+        // 限制不要穿過街道盡頭 (根據商店數量計算)
+        if (currentZ > 2500) currentZ = 2500;
+
+        updateCamera();
+    });
+
+    // 觸控支援
+    let touchStartY = 0;
+    window.addEventListener('touchstart', e => touchStartY = e.touches[0].clientY);
+    window.addEventListener('touchmove', e => {
+        const deltaY = touchStartY - e.touches[0].clientY;
+        currentZ += deltaY * 2;
+        touchStartY = e.touches[0].clientY;
+        updateCamera();
+    });
+
+    function updateCamera() {
+        // 使用 translateZ 移動整個世界，模擬鏡頭移動
+        world.style.transform = `translateZ(${currentZ}px)`;
+    }
+</script>
+
+</body>
+</html>

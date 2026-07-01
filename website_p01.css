@@ -1,0 +1,811 @@
+:root {
+
+    --street-width: 3200px;
+
+    --wall-height: 1600px;
+
+    /* 單層高度 */
+
+    --total-height: 3200px;
+
+    /* 兩層總高 */
+
+    --shop-width: 500px;
+
+    --perspective-val: 800px;
+
+    --initial-z: -2500px;
+
+}
+
+body {
+    margin: 0;
+    background-color: #000000 !important;
+    touch-action: none;
+}
+
+#camera-label {
+
+    position: fixed;
+
+    top: 20px;
+
+    right: 20px;
+
+    background: rgba(0, 0, 0, 0.9);
+
+    color: #000;
+
+    padding: 10px 15px;
+
+    border-radius: 5px;
+
+    font-size: 14px;
+
+    z-index: 2000;
+
+}
+
+.viewport {
+    width: 100vw;
+    height: 100vh;
+    perspective: var(--perspective-val);
+    perspective-origin: 5% 40%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    will-change: perspective;
+}
+
+.world {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+    will-change: transform;
+    transform: translateZ(var(--initial-z));
+}
+
+/* 進階地板：鏡面地磚與青色能源線路 */
+.ground {
+    position: absolute;
+    width: var(--street-width);
+    height: 3000px;
+    background-color: #000;
+
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%) rotateX(90deg) translateZ(-1600px) translateY(1500px);
+    z-index: 1;
+
+    /* 使用 Flexbox 讓內部的 track 自動置中 */
+    display: flex;
+    align-items: center;
+    /* 垂直置中 (在 3D 躺平後是深度置中) */
+    justify-content: center;
+    /* 水平置中 */
+
+}
+
+/* 內部的能源軌道區塊 */
+.floor-track {
+    position: relative;
+    top: 0;
+    left: 0;
+    width: 70%;
+    height: 100%;
+}
+
+/* 利用偽元素製作「左」與「右」兩條發光線 */
+.floor-track::before,
+.floor-track::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    width: 20px;
+    /* 燈條的寬度 */
+    height: 100%;
+
+    /* 製作流動的點狀或線狀燈條 */
+    background-image: linear-gradient(to bottom,
+            transparent 0%,
+            rgba(0, 255, 255, 0) 20%,
+            rgba(0, 255, 255, 1) 50%,
+            /* 燈條發光處 */
+            rgba(0, 255, 255, 0) 80%,
+            transparent 100%);
+    background-size: 100% 400px;
+    /* 燈條的間距與長度 */
+    animation: trackFlow 2s linear infinite;
+
+    /* 霓虹光暈感 */
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.8);
+}
+
+/* 左邊燈條貼齊左邊緣 */
+.floor-track::before {
+    left: 0;
+}
+
+/* 右邊燈條貼齊右邊緣 */
+.floor-track::after {
+    right: 0;
+}
+
+/* 燈條流動動畫 */
+@keyframes trackFlow {
+    from {
+        background-position: 0 400px;
+    }
+
+    to {
+        background-position: 0 -400px;
+    }
+}
+
+/* 進階天花板：工業板材與冷紫色長條燈 */
+.top-ceiling {
+    position: absolute;
+    width: var(--street-width);
+    /* 3200px */
+    height: 3000px;
+    background-color: #0d000d;
+    /* 帶極深紫色的底，比純黑更能透光 */
+
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%) rotateX(90deg) translateZ(1600px) translateY(1500px);
+    z-index: 1;
+
+    /* 調整背景樣式：亮紫色燈條與環境光 */
+    background-image:
+        /* 兩條主要的亮紫色燈條 (左右對稱) */
+        linear-gradient(90deg,
+            transparent 20%,
+            rgba(255, 0, 255, 0.9) 21%,
+            rgba(255, 0, 255, 1) 22%,
+            rgba(255, 0, 255, 0.9) 23%,
+            transparent 24%,
+            transparent 76%,
+            rgba(255, 0, 255, 0.9) 77%,
+            rgba(255, 0, 255, 1) 78%,
+            rgba(255, 0, 255, 0.9) 79%,
+            transparent 80%),
+        /* 橫向的工業格柵感 (稍微調亮) */
+        linear-gradient(rgba(255, 0, 255, 0.1) 2px, transparent 2px),
+        /* 中央紫色光暈，讓整體不那麼死黑 */
+        radial-gradient(ellipse at center, rgba(138, 43, 226, 0.3) 0%, transparent 70%);
+
+    background-size: 100% 100%, 100% 150px, 100% 100%;
+
+    /* 強烈的霓虹發光效果 */
+    box-shadow:
+        0 0 100px rgba(255, 0, 255, 0.3) inset,
+        /* 內部環境光 */
+        0 0 40px rgba(255, 0, 255, 0.6);
+    /* 邊緣溢光 */
+    backface-visibility: visible;
+}
+
+.street-wall {
+    position: absolute;
+    top: 50%;
+    height: var(--total-height);
+    margin-top: -1600px;
+    /* 總高度的一半，確保垂直置中 */
+    display: flex;
+    flex-direction: column;
+    /* 一樓二樓垂直堆疊 */
+    transform-style: flat !important;
+}
+
+.floor {
+    display: flex;
+    /* 商店水平排列 */
+    height: var(--wall-height);
+    transform-style: flat !important;
+}
+
+#left-side-2f,
+#right-side-2f {
+    background-image: url('images/shop2F.webp');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+
+/* 1. 設定 endfloor 為垂直排列的容器 */
+.endfloor {
+    height: 1600px;
+    display: flex;
+    flex-direction: column;
+    /* 垂直排版 */
+    gap: 0;
+    /* 移除間隙 */
+}
+
+/* 2. 讓 clockArea 固定高度，不強迫壓縮 */
+.clockArea {
+    flex: 0 0 800px;
+    /* 固定 800px，不伸縮 */
+    width: 99%;
+    margin: 0 auto;
+    /* ... 其餘樣式不變 ... */
+}
+
+/* 3. 關鍵：讓輪播區域填滿剩餘的所有空間 */
+.carousel-wrapper {
+    flex-grow: 1;
+    /* 這是重點：自動填滿剩下的 800px */
+    width: 100%;
+    overflow: hidden;
+}
+
+/* 4. 確保 Carousel 結構撐滿 wrapper */
+#carouselExampleCaptions,
+.carousel-inner,
+.carousel-item {
+    height: 100%;
+    width: 100%;
+}
+
+/* 5. 確保圖片填滿，不留白 */
+.carousel-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /* 完美覆蓋且不變形 */
+}
+
+.left-side {
+
+    right: calc(50% + (var(--street-width) / 2));
+
+    transform-origin: right center;
+
+    transform: rotateY(90deg);
+
+}
+
+.right-side {
+
+    left: calc(50% + (var(--street-width) / 2));
+
+    transform-origin: left center;
+
+    transform: rotateY(-90deg);
+
+}
+
+.end-side {
+
+    position: absolute;
+
+    left: 50%;
+
+    top: 50%;
+
+    width: var(--street-width);
+
+    height: var(--total-height);
+
+    margin-left: calc(var(--street-width) / -2);
+
+    margin-top: -1600px;
+
+    background: #2d3436;
+
+
+    display: flex;
+
+    flex-direction: column;
+
+    box-sizing: border-box;
+
+    backface-visibility: hidden;
+
+    transform-style: flat !important;
+
+}
+
+.shop {
+    width: var(--shop-width);
+    height: 100%;
+    background: #2d3436;
+
+    position: relative;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    transform-style: flat !important;
+}
+
+.signboard {
+    height: 300px;
+    /* 背景改為深色，讓霓虹燈效果更強烈 */
+    background: #0a0a0a;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    z-index: 2;
+    position: relative;
+    /* 移除不必要的 translateZ，除非你的容器確實有 3D 透視需求 */
+    flex-shrink: 0;
+    width: 100%;
+    transform-style: flat !important;
+}
+
+/* 白色發光文字 */
+.glow-text {
+    color: #fff;
+    font-size: 5rem;
+    /* 使用 rem 確保適應性 */
+    font-weight: 800;
+    text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 40px #00ffff, 0 0 80px #00ffff;
+    letter-spacing: 10px;
+    margin: 0;
+    text-transform: uppercase;
+    /* 招牌通常大寫更有力 */
+}
+
+/* 統一燈條樣式並微調發光 */
+.top-light,
+.bottom-light {
+    width: 60%;
+    /* 讓燈條隨容器寬度比例調整 */
+    height: 6px;
+    /* 稍微加粗一點，光暈感更好 */
+    border-radius: 3px;
+    box-shadow: 0 0 15px currentColor, 0 0 30px currentColor;
+}
+
+.top-light {
+    background: #00d4ff;
+    color: #00d4ff;
+    /* 讓 box-shadow 直接繼承顏色 */
+}
+
+.bottom-light {
+    background: #ff00ff;
+    color: #ff00ff;
+}
+
+.doorway {
+    flex-grow: 1;
+    background: #535353;
+    position: relative;
+
+    /* 關鍵：如果這裡面有圖片，確保容器不允許內容溢出 */
+    overflow: hidden;
+    transform-style: flat !important;
+}
+
+/* 強制讓裡面的圖片填滿容器 */
+.doorway img {
+    width: 100%;
+    height: 100%;
+    /* 這裡才是 object-fit 該在的地方 */
+    object-fit: fill;
+    /* 確保圖片本身不會因為 flex 佈局而變形或被壓縮 */
+    flex-shrink: 0;
+}
+
+/* 建立一個跟門一樣大的透明層，專門負責置中 */
+.hint-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+
+    /* 強制置中關鍵 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    /* 核心：將整個容器推向 Z 軸前方 */
+    transform: translateZ(100px);
+    pointer-events: none;
+    /* 點擊穿透 */
+    z-index: 20;
+}
+
+.click-hint {
+    /* 圓角外框設定 */
+    border: 10px solid #00ffff;
+    border-radius: 15px;
+
+    padding: 0px;
+    /* 增加邊框與文字的間距 */
+    /* 視覺風格 */
+    color: #00ffff;
+    font-size: 10rem;
+    font-weight: bold;
+    text-shadow: 0 0 10px #00ffff;
+    /* 3. 套用自動循環動畫 */
+    /* 參數：名稱(breathe)、時間(3s)、平滑度(ease-in-out)、次數(infinite) */
+    animation: breathe 4s ease-in-out infinite;
+    opacity: 0.8;
+}
+
+/* 1. 定義呼吸燈動畫：消失 -> 出現 -> 消失 */
+@keyframes breathe {
+
+    0%,
+    100% {
+        opacity: 0.2;
+        transform: translateZ(100px) scale(0.95);
+    }
+
+    50% {
+        opacity: 0.8;
+        transform: translateZ(120px) scale(1);
+    }
+}
+
+
+/* 時鐘樣式 */
+@font-face {
+    font-family: 'Digital7';
+    src: url('font/digital-7.ttf');
+}
+
+:root {
+    --neon-purple: #bd00ff;
+    --neon-purple-glow: rgba(189, 0, 255, 0.8);
+}
+
+.clockArea {
+    position: relative;
+    min-height: 800px;
+    width: 99%;
+    margin: 0 auto;
+    border-radius: 100px;
+    /* 外部圓角 */
+    background: #111;
+    /* 內部背景 */
+    overflow: hidden;
+    z-index: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* 這裡透過 background-origin 製作邊框 */
+    border: 10px solid transparent;
+    background-clip: padding-box, border-box;
+    background-origin: padding-box, border-box;
+    /* 設定背景色為黑色，這樣 border 區域就是透明的，我們填入光環 */
+    background-image: linear-gradient(#111, #111), linear-gradient(to right, #444, #444);
+}
+
+/* 核心：用 before 製作一個絕對定位的旋轉環 */
+.clockArea::before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    /* 這裡才是真正的跑馬燈 */
+    background: conic-gradient(from 0deg, transparent 0deg, var(--neon-purple) 20deg, transparent 40deg);
+    animation: rotate 6s linear infinite;
+    transform-origin: center;
+    z-index: 0;
+    will-change: transform;
+    backface-visibility: hidden;
+    /* 增加一個極小的模糊濾鏡，這可以防止因為邊緣銳利導致的像素閃爍 */
+    filter: blur(0.5px);
+
+}
+
+/* 用 after 把中間挖空，把中間的背景填回去，只留下邊框處的燈條 */
+.clockArea::after {
+    content: '';
+    position: absolute;
+    inset: 30px;
+    /* 控制邊框厚度 */
+    border-radius: 90px;
+    background: #111;
+    /* 中間填回黑色，蓋住旋轉盤中心 */
+    z-index: 1;
+}
+
+@keyframes rotate {
+    from {
+        transform: rotate(0deg) scale(4);
+    }
+
+    to {
+        transform: rotate(360deg) scale(4);
+    }
+}
+
+.digtal-clock {
+    font-family: 'Digital7', sans-serif;
+    font-weight: 900;
+    font-size: 30rem;
+    /* 使用固定大小或相對單位 */
+    color: #00fff2;
+    text-shadow: 0 0 20px #00fff2, 0 0 40px #00fff2;
+    transform: skewX(-5deg);
+
+    /* 這裡使用 text-align 來置中 inline-block 元素 */
+    text-align: center;
+    line-height: 1;
+    width: 100%;
+    /* 確保時鐘文字層級高於遮罩 */
+    position: relative;
+    z-index: 2;
+}
+
+
+
+
+/* 選單樣式 */
+:root {
+    --neon-blue: #00f2ff;
+    --menu-bg: rgba(0, 20, 30, 0.85);
+    --menu-item-bg: rgba(0, 40, 60, 0.9);
+}
+
+.tech-menu {
+    position: fixed;
+    top: 5%;
+    left: 1%;
+    z-index: 10000;
+}
+
+/* 一級圓形 */
+.menu-item-l1 {
+    font-size: 2rem;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: var(--menu-bg);
+    border: 2px solid var(--neon-blue);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--neon-blue);
+    cursor: pointer;
+
+    box-shadow: 0 0 5px rgba(0, 242, 255, 0.2);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.menu-item-l1:hover {
+    /* 啟動狀態：外發光更強，稍微放大 */
+    box-shadow: 0 0 20px rgba(0, 242, 255, 0.6);
+    border-color: #fff;
+    /* 邊框變白更亮 */
+    transform: scale(1.1);
+    /* 輕微放大 */
+    color: #fff;
+}
+
+/* --- 第二層：垂直排列 --- */
+.submenu-l2 {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    position: absolute;
+    top: 0;
+    left: 0;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.5s ease;
+}
+
+/* hover L1 觸發顯示 */
+.menu-item-l1:hover .submenu-l2 {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(60px);
+}
+
+/* --- 二級項目 --- */
+.menu-item-l2 {
+    font-size: 2rem;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: var(--menu-bg);
+    border: 2px solid var(--neon-blue);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--neon-blue);
+    margin-top: 20px;
+    position: relative;
+    /* 關鍵：讓 L3 可以基於此處定位 */
+    cursor: pointer;
+
+    box-shadow: 0 0 5px rgba(0, 242, 255, 0.2);
+    transition: all 0.3s ease;
+}
+
+.menu-item-l2:hover {
+    /* 啟動狀態：外發光更強，稍微放大 */
+    box-shadow: 0 0 20px rgba(0, 242, 255, 0.6);
+    border-color: #fff;
+    /* 邊框變白更亮 */
+    transform: scale(1.1);
+    /* 輕微放大 */
+    color: #fff;
+}
+
+/* --- 第三層：向右滑出 --- */
+.submenu-l3 {
+    background: rgba(0, 30, 50, 0.95);
+    border: 1px solid var(--neon-blue);
+    border-radius: 10px;
+    width: 130px;
+
+    opacity: 0;
+    pointer-events: none;
+    /* 預設隱藏且不可點 */
+
+    z-index: 10001;
+
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    position: absolute;
+    top: 0;
+    left: 0;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.5s ease;
+
+    /* --- 滾動選單關鍵設定 --- */
+    max-height: 120px;
+    /* 設定選單最大高度，超過此高度會滾動 */
+    overflow-y: auto;
+    /* 開啟垂直滾動 */
+    overflow-x: hidden;
+    /* 隱藏水平滾動 */
+}
+
+/* 自定義滾動條樣式 (WebKit 瀏覽器如 Chrome, Edge, Safari) */
+.submenu-l3::-webkit-scrollbar {
+    width: 4px;
+    /* 滾動條寬度 */
+}
+
+.submenu-l3::-webkit-scrollbar-track {
+    background: rgba(0, 20, 30, 0.5);
+    /* 滾動條軌道背景 */
+    border-radius: 10px;
+}
+
+.submenu-l3::-webkit-scrollbar-thumb {
+    background: var(--neon-blue);
+    /* 滾動條本體顏色 */
+    border-radius: 10px;
+    box-shadow: 0 0 5px var(--neon-blue);
+    /* 增加霓虹發光感 */
+}
+
+
+/* hover L2 觸發顯示 L3 */
+.menu-item-l2:hover .submenu-l3 {
+    opacity: 1;
+    pointer-events: auto;
+    /* 顯示時才啟用點擊 */
+    transform: translateX(80px);
+}
+
+/* --- 第三層項目樣式 --- */
+.submenu-l3 li {
+    margin-left: 10px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    color: #ddd;
+    font-size: 14px;
+    border-bottom: 1px solid rgba(0, 242, 255, 0.2);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    /* 增加平滑過渡 */
+    transition: all 0.3s ease;
+}
+
+/* --- hover 效果 --- */
+.submenu-l3 li:hover {
+    color: var(--neon-blue);
+    /* 文字變為亮藍色 */
+    background: rgba(0, 242, 255, 0.15);
+    /* 加入微透明背景 */
+    padding-left: 20px;
+    /* hover 時輕微向右位移，增加靈動感 */
+    border-left: 3px solid var(--neon-blue);
+    /* 左側顯示亮藍邊框 */
+}
+
+/* 改為在 L2 hover 時，整個 L2+L3 區域保持 hover */
+.menu-item-l2::after {
+    content: "";
+    position: absolute;
+    right: -30px;
+    /* 向右延伸 30px 蓋住 L3 的起始區 */
+    top: 0;
+    width: 40px;
+    height: 100%;
+    /* 這裡不需要背景色，只需要寬度 */
+}
+
+/* --- 🚩 新增：強制保持顯示的樣式 --- */
+/* 讓 L2 選單在強制狀態下顯示 */
+.tech-menu.keep-open .submenu-l2 {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(60px);
+}
+
+/* 讓搜尋所在的 L3 選單在強制狀態下顯示 */
+/* 我們針對包含 input 的那個 L2 項目做處理 */
+.menu-item-l2.keep-open-l3 .submenu-l3 {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateX(80px);
+}
+
+/* Modal 內部招牌樣式 */
+.modal-signboard {
+    background: rgba(0, 40, 60, 0.8);
+    border: 2px solid var(--neon-blue);
+    border-radius: 8px;
+    box-shadow: 0 0 15px rgba(0, 242, 255, 0.3);
+}
+
+/* 商品卡片簡易樣式 */
+.product-item {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(0, 242, 255, 0.2);
+    border-radius: 5px;
+    margin-bottom: 10px;
+    padding: 10px;
+    transition: 0.3s;
+}
+
+.product-item:hover {
+    background: rgba(0, 242, 255, 0.1);
+}
+
+/* 設定商品列表容器的滾動行為 */
+#modalProductList {
+    /* 1. 設定最大高度，通常建議為視窗高度的 50%-60% */
+    max-height: 500px;
+
+    /* 2. 啟動垂直滾動 */
+    overflow-y: auto;
+
+    /* 3. 隱藏橫向滾動，防止卡片邊緣抖動 */
+    overflow-x: hidden;
+
+    /* 4. 增加一點右側內縮，預留空間給滾動條 */
+    padding-right: 10px;
+}
+
+/* 自定義滾動條樣式 (符合你的霓虹風格) */
+#modalProductList::-webkit-scrollbar {
+    width: 6px;
+}
+
+#modalProductList::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+}
+
+#modalProductList::-webkit-scrollbar-thumb {
+    background: var(--neon-blue, #00f2ff);
+    /* 使用你定義的變數 */
+    border-radius: 10px;
+    box-shadow: 0 0 5px rgba(0, 242, 255, 0.5);
+}
+
+.badge.text-bg-info {
+    font-size: 50%;
+    color: #fff !important;
+}
